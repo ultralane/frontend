@@ -69,6 +69,15 @@ function Landing() {
               money, you can spend it instantly on any chain, no waiting.
             </p>
           </div>
+          <div className='flex flex-col gap-8  px-6 py-8 border border-opacity-20 border-white rounded-2xl w-[30%]'>
+            <Globe />
+            <h2 className='font-medium text-2xl'>Private Payment</h2>
+            <p className='text-opacity-60 text-white'>
+              Generally in private payment both the party has to be on the same
+              platform but with Ultralane you can make private payment even if
+              the other party is on different platform.
+            </p>
+          </div>
         </div>
       </div>
 
