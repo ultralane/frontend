@@ -3,7 +3,9 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import Send from "./pages/Send";
-
+import Receive from "./pages/Receive";
+import { initDb } from "./utils/db";
+await initDb();
 const router = createBrowserRouter([
   {
     path: "/",
@@ -20,6 +22,10 @@ const router = createBrowserRouter([
   {
     path: "/send",
     element: <Send />,
+  },
+  {
+    path: "/receive",
+    element: <Receive />,
   },
 ]);
 

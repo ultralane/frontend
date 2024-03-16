@@ -3,7 +3,8 @@ import TransactionHistory from "../components/TransactionHistory";
 import PageWrapper from "../components/PageWrapper";
 import { heading1 } from "../utils/constants";
 import Sidebar from "../components/Sidebar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { db } from "../utils/db";
 
 function Profile() {
   const [body, setBody] = useState([]);
@@ -11,6 +12,12 @@ function Profile() {
   const updateBody = (data) => {
     setBody(body.concat(data));
   };
+
+  useEffect(() => {
+    db.getAll("transactions").then((data) => {
+      setBody(data);
+    });
+  }, []);
 
   return (
     <PageWrapper>
@@ -20,6 +27,12 @@ function Profile() {
           <h3 className='font-medium mb-4 text-[#0EDBD8]'>Ultralane Balance</h3>
           <BalanceCard updateBody={updateBody} />
         </div>
+        {/* <div>
+          <h3 className='font-medium mb-4 text-[#0EDBD8]'>
+            Wallet balance across different chain
+          </h3>
+          <BalanceCard />
+        </div> */}
       </div>
       <div className='mt-12'>
         <h2 className='font-medium text-[1.7rem]'>HISTORY</h2>
