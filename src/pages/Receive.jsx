@@ -17,71 +17,65 @@ function Receive() {
   const [modalOpen, setModalOpen] = useState(false);
   const [body, setBody] = useState([]);
   const [newAddress, setNewAddress] = useState("");
-  let keyPair;
-
-  const fetchEvents = async () => {
-    let storage = localStorage.getItem("keyPair");
-    if (!storage) {
-      keyPair = await KeyPair.random();
-      localStorage.setItem("keyPair", await keyPair.privateKey.hex());
-    } else {
-      keyPair = await KeyPair.newAsync(Field.from(storage));
-    }
-    let totalNubmerOfAddresses = localStorage.getItem("totalNubmerOfAddresses");
-    if (!totalNubmerOfAddresses) {
-      totalNubmerOfAddresses = 0;
-    }
-    let addresses = [];
-    let pool = await Pool();
-    let poolAddress = await pool.getAddress();
-    for (let i = 0; i < totalNubmerOfAddresses; i++) {
-      let addr = (
-        await keyPair.deriveStealthAddress(i, poolAddress, INIT_CODE_HASH)
-      ).address;
-      addresses.push(addr);
-    }
-    console.log("Fetching transfer events");
-    const netowrk = await getNetwork();
-    let network_cached = await db.get("network", netowrk.chainId);
-    if (!network_cached) {
-      await db.add("network", netowrk);
-    }
-    let [lastBlock, events] = await fetchTransferEvents(
-      network_cached?.startBlock,
-      addresses
-    );
-    network_cached.startBlock = lastBlock;
-    await db.put("network", network_cached);
-    for (let i = 0; i < events.length; i++) {
-      await db.add("receive", {
-        from: events[i].args[0],
-        to: events[i].args[1],
-        amount: events[i].args[2],
-        txHash: `${netowrk.explorer}/tx/${events[i].transactionHash}`,
-      });
-    }
-    let data = await db.getAll("receive");
-    let formattedData = data.map((item) => {
-      return {
-        ...item,
-        amount: formatUnits(item.amount, 6),
-      };
-    });
-    setBody(formattedData);
-  };
+  const [keyPair, setKeyPair] = useState(null);
 
   useEffect(() => {
-    const setKeyPair = async () => {
+    const fetchKeyPair = async () => {
       let storage = localStorage.getItem("keyPair");
+      let kp;
       if (!storage) {
-        keyPair = await KeyPair.random();
+        kp = await KeyPair.random();
         localStorage.setItem("keyPair", await keyPair.privateKey.hex());
       } else {
-        keyPair = await KeyPair.newAsync(Field.from(storage));
+        kp = await KeyPair.newAsync(Field.from(storage));
       }
-      await fetchEvents();
+      setKeyPair(kp);
+      let totalNubmerOfAddresses = localStorage.getItem(
+        "totalNubmerOfAddresses"
+      );
+      if (!totalNubmerOfAddresses) {
+        totalNubmerOfAddresses = 0;
+      }
+      let addresses = [];
+      let pool = await Pool();
+      let poolAddress = await pool.getAddress();
+      for (let i = 0; i < totalNubmerOfAddresses; i++) {
+        let addr = (
+          await kp.deriveStealthAddress(i, poolAddress, INIT_CODE_HASH)
+        ).address;
+        addresses.push(addr);
+      }
+      console.log("Fetching transfer events");
+      const netowrk = await getNetwork();
+      let network_cached = await db.get("network", netowrk.chainId);
+      if (!network_cached) {
+        await db.add("network", netowrk);
+        network_cached = netowrk;
+      }
+      let [lastBlock, events] = await fetchTransferEvents(
+        network_cached?.startBlock,
+        addresses
+      );
+      network_cached.startBlock = lastBlock;
+      await db.put("network", network_cached);
+      for (let i = 0; i < events.length; i++) {
+        await db.add("receive", {
+          from: events[i].args[0],
+          to: events[i].args[1],
+          amount: events[i].args[2],
+          txHash: `${netowrk.explorer}/tx/${events[i].transactionHash}`,
+        });
+      }
+      let data = await db.getAll("receive");
+      let formattedData = data.map((item) => {
+        return {
+          ...item,
+          amount: formatUnits(item.amount, 6),
+        };
+      });
+      setBody(formattedData);
     };
-    setKeyPair();
+    fetchKeyPair();
   }, []);
 
   const generateAddress = async () => {
@@ -90,6 +84,9 @@ function Receive() {
     let totalNubmerOfAddresses = localStorage.getItem("totalNubmerOfAddresses");
     if (!totalNubmerOfAddresses) {
       totalNubmerOfAddresses = 0;
+    }
+    if (!keyPair) {
+      return;
     }
     let addr = (
       await keyPair.deriveStealthAddress(
