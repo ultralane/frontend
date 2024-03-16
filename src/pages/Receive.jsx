@@ -1,15 +1,17 @@
 import PageWrapper from "../components/PageWrapper";
 import Copy from "../components/Icons/Copy";
 import TransactionHistory from "../components/TransactionHistory";
-import { heading2, INIT_CODE_HASH } from "../utils/constants";
+import { heading2 } from "../utils/constants";
 import { useEffect, useState } from "react";
 import Modal from "../components/ui/modal";
 import Sidebar from "../components/Sidebar";
 import { KeyPair, Field } from "@ultralane/sdk";
 import { Pool, getNetwork, fetchTransferEvents } from "../utils/blockchain";
+import { ZeroHash } from "ethers";
 import QRCode from "react-qr-code";
 import { db } from "../utils/db";
 
+const INIT_CODE_HASH = ZeroHash;
 
 function Receive() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -47,7 +49,7 @@ function Receive() {
         await db.add("network", netowrk);
       }
       let [lastBlock, events] = await fetchTransferEvents(
-        network_cached.startBlock,
+        network_cached?.startBlock,
         addresses
       );
       // network_cached.startBlock = lastBlock;

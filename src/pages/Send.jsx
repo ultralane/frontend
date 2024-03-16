@@ -91,9 +91,9 @@ function Send() {
       <Sidebar />
       <div className='mt-20 flex justify-center'>
         <div className='w-[32%] flex flex-col items-center gap-2'>
-          {loading && <Loading animation={loadingAnimation} />}
-          {success && <Loading animation={successAnimation} />}
-          {error && <Loading animation={errorAnimation} />}
+          {loading && <Loading animation={loadingAnimation} status="loading" />}
+          {success && <Loading animation={successAnimation} status="success"/>}
+          {error && <Loading animation={errorAnimation} status="error"/>}
           {!error && !success && !loading && (
             <>
               <div className='card-gradient pt-10 pb-4 rounded-2xl w-[100%]'>

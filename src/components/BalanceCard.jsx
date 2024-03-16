@@ -10,13 +10,19 @@ import { parseUnits } from "ethers";
 import { db } from "../utils/db";
 import { useEffect } from "react";
 import { Networks } from "../utils/constants";
-import { getNetwork } from "../utils/blockchain";
+import Loading from "./Loading";
+import loadingAnimation from "../assets/loading.json"
+import successAnimation from "../assets/success.json"
+import errorAnimation from "../assets/error.json"
 
 function BalanceCard({ updateBody }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState("");
   const [amount, setAmount] = useState(0); // Step 1: Define the state variable for amount
   const [balance, setBalance] = useState(0);
+  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     let getBalance = async () => {
@@ -42,6 +48,9 @@ function BalanceCard({ updateBody }) {
 
   const closeModal = () => {
     setModalOpen(false);
+    setLoading(false)
+    setError(false)
+    setSuccess(false)
   };
 
   const handleNetworkChange = (event) => {
@@ -70,67 +79,74 @@ function BalanceCard({ updateBody }) {
       alert("Please select a network");
       return;
     }
-    const depositAmount = parseUnits(amount, 6);
-
-    const tree = await getTree();
-    // Create a note
-    const keypair = await KeyPair.random();
-    const tx = await tree.createTransaction({
-      inputNotes: [],
-      keypair,
-      updateTree: true,
-      depositAmount,
-    });
-
-    const { proof, publicInputs } = await sdk.logtime(tx.prove());
-    const updatedDepositRoot = await tree.calculateRootHex();
-    console.log("Proof and public inputs generated");
-
-    const usdc = await USDC();
-    const pool = await Pool();
-
-    let prevRoot = tx.root.hex();
-    let set_root_tx = await pool.setDepositsRoot(prevRoot);
-    await set_root_tx.wait();
-    console.log("Deposits root set");
-
-    // Deposit usdc to the pool along with the note
-    let usdc_tx = await usdc.approve(pool, depositAmount);
-    await usdc_tx.wait();
-    let deposit_tx = await pool.transact(
-      proof,
-      publicInputs,
-      updatedDepositRoot
-    );
-
-    window.keypair = keypair;
-    window.tx = tx;
-    window.proof = proof;
-    window.publicInputs = publicInputs;
-
-    // store the new commitment in the local db
-    db.add("elements", { value: (await tx.outputs[0].commitment()).hex() });
-    db.add("notes", tx.outputs[0].raw());
-    const network = await getNetwork();
-
-    let txStore = {
-      txHash: deposit_tx.hash,
-      chain: network.name,
-      source: "Deposit",
-      status: "Success",
-      time: new Date().toLocaleString(),
-      amount,
-    };
-
-    db.add("transactions", txStore);
-    updateBody(txStore);
-
-    let amount_int = typeof amount === "string" ? parseInt(amount) : amount;
-    let balance_int = typeof balance === "string" ? parseInt(balance) : balance;
-    localStorage.setItem("balance", balance_int + amount_int);
-    setBalance(balance_int + amount_int);
-
-    setModalOpen(false);
+    setLoading(true)
+    try {
+      const depositAmount = parseUnits(amount, 6);
+  
+      const tree = await getTree();
+      // Create a note
+      const keypair = await KeyPair.random();
+      const tx = await tree.createTransaction({
+        inputNotes: [],
+        keypair,
+        updateTree: true,
+        depositAmount,
+      });
+  
+      const { proof, publicInputs } = await sdk.logtime(tx.prove());
+      const updatedDepositRoot = await tree.calculateRootHex();
+      console.log("Proof and public inputs generated");
+  
+      const usdc = await USDC();
+      const pool = await Pool();
+  
+      let prevRoot = tx.root.hex();
+      let set_root_tx = await pool.setDepositsRoot(prevRoot);
+      await set_root_tx.wait();
+      console.log("Deposits root set");
+  
+      // Deposit usdc to the pool along with the note
+      let usdc_tx = await usdc.approve(pool, depositAmount);
+      await usdc_tx.wait();
+      let deposit_tx = await pool.transact(
+        proof,
+        publicInputs,
+        updatedDepositRoot
+      );
+  
+      window.keypair = keypair;
+      window.tx = tx;
+      window.proof = proof;
+      window.publicInputs = publicInputs;
+  
+      // store the new commitment in the local db
+      db.add("elements", { value: (await tx.outputs[0].commitment()).hex() });
+      db.add("notes", tx.outputs[0].raw());
+  
+      let txStore = {
+        txHash: deposit_tx.hash,
+        chain: "Ethereum",
+        source: "Deposit",
+        status: "Success",
+        time: new Date().toLocaleString(),
+        amount,
+      };
+  
+      db.add("transactions", txStore);
+      updateBody(txStore);
+  
+      let amount_int = typeof amount === "string" ? parseInt(amount) : amount;
+      let balance_int = typeof balance === "string" ? parseInt(balance) : balance;
+      localStorage.setItem("balance", balance_int + amount_int);
+      setBalance(balance_int + amount_int);
+      setLoading(false)
+      setSuccess(true)
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+      setError(true);
+    }
+    
   };
 
   return (
@@ -153,6 +169,12 @@ function BalanceCard({ updateBody }) {
       </div>
       {modalOpen && (
         <Modal closeModal={closeModal} className={classNames(`w-[24rem]`)}>
+            {loading && <Loading animation={loadingAnimation} status="loading" />}
+            {success && <Loading animation={successAnimation} status="success"/>}
+            {error && <Loading animation={errorAnimation} status="error"/>}
+            {
+              !error && !loading && !success &&
+              <>
           <div className='py-20 px-12 card-gradient-2'>
             <h2 className='font-medium text-center text-2xl text-white'>
               Deposit to Ultralane
@@ -197,6 +219,8 @@ function BalanceCard({ updateBody }) {
               </Button>
             </div>
           </div>
+              </>
+            }
         </Modal>
       )}
     </>
