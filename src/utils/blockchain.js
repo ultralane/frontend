@@ -1,7 +1,6 @@
 import { BrowserProvider } from "ethers";
 import { Depth } from "./constants";
 import { Networks } from "./constants";
-import { db } from "./db";
 import { NoteMerkleTree, getContracts } from "@ultralane/sdk";
 
 export const USDC = async () => {
@@ -20,13 +19,9 @@ export const Pool = async () => {
 
 export const getTree = async () => {
   // Get all the elements of the merkle tree
-  let elements = (await db.getAll("elements")).map((d) => {
-    return d.value;
-  });
-  return NoteMerkleTree.fromJson({
-    elements,
-    depth: Depth,
-  });
+  const pool = await Pool();
+  let elements = await pool.allNoteCommitments();
+  return NoteMerkleTree.fromAllNoteCommitments(elements, Depth);
 };
 
 // Function to fetch transfer events

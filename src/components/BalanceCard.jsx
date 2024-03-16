@@ -109,7 +109,9 @@ function BalanceCard({ updateBody }) {
       await usdc_tx.wait();
       console.log("usdc approved");
       setStatus("Depositing to pool...");
-      let deposit_tx = await pool.transact(proof, publicInputs);
+      let deposit_tx = await pool.transact(proof, publicInputs, {
+        gasLimit: 20000000,
+      });
       await deposit_tx.wait();
       console.log("deposit tx", deposit_tx);
 
@@ -119,7 +121,6 @@ function BalanceCard({ updateBody }) {
       window.publicInputs = publicInputs;
 
       // store the new commitment in the local db
-      db.add("elements", { value: (await tx.outputs[0].commitment()).hex() });
       db.add("notes", tx.outputs[0].raw());
       let network = await getNetwork();
       let txStore = {
@@ -143,7 +144,8 @@ function BalanceCard({ updateBody }) {
       setLoading(false);
       setSuccess(true);
     } catch (error) {
-      setStatus(error.message);
+      console.error(error.message);
+      setStatus(error);
       console.error(error);
       setLoading(false);
       setError(true);
