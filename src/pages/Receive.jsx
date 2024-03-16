@@ -20,7 +20,7 @@ function Receive() {
         keyPair = await KeyPair.random();
         localStorage.setItem("keyPair", await keyPair.privateKey.hex());
       } else {
-        keyPair = await KeyPair.new(Field.from(storage));
+        keyPair = await KeyPair.newAsync(Field.from(storage));
       }
     };
     setKeyPair();
