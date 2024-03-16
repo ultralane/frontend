@@ -8,10 +8,13 @@ import Modal from "../components/ui/modal";
 import Sidebar from "../components/Sidebar";
 import { KeyPair, Field } from "@ultralane/sdk";
 import { Pool } from "../utils/blockchain";
+import { ZeroHash } from "ethers";
+import QRCode from "react-qr-code";
 
 function Receive() {
   const [modalOpen, setModalOpen] = useState(false);
   const [body, setBody] = useState([]);
+  const [newAddress, setNewAddress] = useState("");
   let keyPair;
   useEffect(() => {
     const setKeyPair = async () => {
@@ -27,10 +30,22 @@ function Receive() {
   });
 
   const generateAddress = async () => {
-    let pool = Pool();
-    // const initCodeHash = await pool.INIT_CODE_HASH();
-    // let addr = keyPair.deriveStealthAddress(0, pool, initCodeHash);
-    // window.addr = addr;
+    let pool = await Pool();
+    let poolAddress = await pool.getAddress();
+    let totalNubmerOfAddresses = localStorage.getItem("totalNubmerOfAddresses");
+    if (!totalNubmerOfAddresses) {
+      totalNubmerOfAddresses = 0;
+    }
+    let addr = (
+      await keyPair.deriveStealthAddress(
+        totalNubmerOfAddresses,
+        poolAddress,
+        ZeroHash
+      )
+    ).address;
+    setNewAddress(addr);
+    totalNubmerOfAddresses++;
+    localStorage.setItem("totalNubmerOfAddresses", totalNubmerOfAddresses);
     setModalOpen(true);
   };
 
@@ -59,9 +74,9 @@ function Receive() {
         <Modal closeModal={closeModal}>
           <div className='flex flex-col w-full items-center px-4 pt-8 pb-20 gap-6 card-gradient'>
             <h2 className='text-[1.04rem] font-medium'>New Address</h2>
-            <img src={dummyQr} alt='' />
+            <QRCode value={newAddress} size={200} />
             <h4 className='flex items-center gap-3 text-sm font-medium'>
-              0xA9E78cef5e6c0081b68AdA2554c04198DfF17C69
+              {newAddress}
               <Copy />
             </h4>
           </div>
