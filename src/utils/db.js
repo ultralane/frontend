@@ -4,7 +4,7 @@ window.deleteDB = deleteDB;
 export let db;
 
 export const initDb = async () => {
-  db = await openDB("ultralane", 3, {
+  db = await openDB("ultralane", 6, {
     upgrade(db) {
       if (!db.objectStoreNames.contains("elements")) {
         let store = db.createObjectStore("elements", {
@@ -28,7 +28,19 @@ export const initDb = async () => {
           autoIncrement: true,
         });
       }
+      if (!db.objectStoreNames.contains("network")) {
+        db.createObjectStore("network", {
+          keyPath: "chainId",
+          autoIncrement: true,
+        });
+      }
     },
   });
   window.db = db;
+};
+
+window.resetStorage = async () => {
+  deleteDB("ultralane");
+  localStorage.clear();
+  window.location.reload();
 };

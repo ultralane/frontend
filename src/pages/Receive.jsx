@@ -6,9 +6,10 @@ import { useEffect, useState } from "react";
 import Modal from "../components/ui/modal";
 import Sidebar from "../components/Sidebar";
 import { KeyPair, Field } from "@ultralane/sdk";
-import { Pool } from "../utils/blockchain";
+import { Pool, getNetwork, fetchTransferEvents } from "../utils/blockchain";
 import { ZeroHash } from "ethers";
 import QRCode from "react-qr-code";
+import { db } from "../utils/db";
 
 const INIT_CODE_HASH = ZeroHash;
 
@@ -42,7 +43,18 @@ function Receive() {
         ).address;
         addresses.push(addr);
       }
-      console.log(addresses);
+      const netowrk = await getNetwork();
+      let network_cached = await db.get("network", netowrk.chainId);
+      if (!network_cached) {
+        await db.add("network", netowrk);
+      }
+      let [lastBlock, events] = await fetchTransferEvents(
+        network_cached.startBlock,
+        addresses
+      );
+      // network_cached.startBlock = lastBlock;
+      // await db.put("network", network_cached);
+      console.log(addresses,events);
     };
     setKeyPair();
   });
