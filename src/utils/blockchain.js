@@ -37,6 +37,7 @@ export const fetchTransferEvents = async (startBlock, addresses) => {
   let provider = tokenContract.runner.provider;
   let endBlock = await provider.getBlockNumber();
   let events = [];
+  console.log("Fetching transfer events");
   for (let address of addresses) {
     console.log(address, await tokenContract.getAddress());
     const transferEvents = await tokenContract.queryFilter(
