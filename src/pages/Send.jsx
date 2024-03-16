@@ -71,11 +71,6 @@ function Send() {
       setLoading(false);
       setError(true);
     }
-    setTimeout(() => {
-      setSuccess(false);
-      setError(false);
-      setLoading(false);
-    }, 3000);
   };
 
   // Handler for network selection change
@@ -104,6 +99,7 @@ function Send() {
               animation={loadingAnimation}
               status={status}
               closeLoaderModal={closeLoaderModal}
+              loop={true}
             />
           )}
           {success && (

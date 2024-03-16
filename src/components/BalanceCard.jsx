@@ -14,6 +14,7 @@ import Loading from "./Loading";
 import loadingAnimation from "../assets/loading.json";
 import successAnimation from "../assets/success.json";
 import errorAnimation from "../assets/error.json";
+import { getNetwork } from "../utils/blockchain";
 
 function BalanceCard({ updateBody }) {
   const [modalOpen, setModalOpen] = useState(false);
@@ -109,6 +110,7 @@ function BalanceCard({ updateBody }) {
       console.log("usdc approved");
       setStatus("Depositing to pool...");
       let deposit_tx = await pool.transact(proof, publicInputs);
+      await deposit_tx.wait();
       console.log("deposit tx", deposit_tx);
 
       window.keypair = keypair;
@@ -119,10 +121,10 @@ function BalanceCard({ updateBody }) {
       // store the new commitment in the local db
       db.add("elements", { value: (await tx.outputs[0].commitment()).hex() });
       db.add("notes", tx.outputs[0].raw());
-
+      let network = await getNetwork();
       let txStore = {
         txHash: deposit_tx.hash,
-        chain: "Ethereum",
+        chain: network.name,
         source: "Deposit",
         status: "Success",
         time: new Date().toLocaleString(),
@@ -179,6 +181,7 @@ function BalanceCard({ updateBody }) {
               animation={loadingAnimation}
               status={status}
               closeLoaderModal={closeLoaderModal}
+              loop={true}
             />
           )}
           {success && (
