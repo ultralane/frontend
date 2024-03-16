@@ -148,6 +148,12 @@ function BalanceCard({ updateBody }) {
     }
   };
 
+  const closeLoaderModal = () => {
+    setLoading(false);
+    setError(false);
+    setSuccess(false);
+  };
+
   return (
     <>
       <div className='bg-[#121024] flex w-[270px] gap-8 rounded-md px-5 py-7 justify-between'>
@@ -168,9 +174,27 @@ function BalanceCard({ updateBody }) {
       </div>
       {modalOpen && (
         <Modal closeModal={closeModal} className={classNames(`w-[24rem]`)}>
-          {loading && <Loading animation={loadingAnimation} status={status} />}
-          {success && <Loading animation={successAnimation} status={status} />}
-          {error && <Loading animation={errorAnimation} status={status} />}
+          {loading && (
+            <Loading
+              animation={loadingAnimation}
+              status={status}
+              closeLoaderModal={closeLoaderModal}
+            />
+          )}
+          {success && (
+            <Loading
+              animation={successAnimation}
+              status={status}
+              closeLoaderModal={closeLoaderModal}
+            />
+          )}
+          {error && (
+            <Loading
+              animation={errorAnimation}
+              status={status}
+              closeLoaderModal={closeLoaderModal}
+            />
+          )}
           {!error && !loading && !success && (
             <>
               <div className='py-20 px-12 card-gradient-2'>

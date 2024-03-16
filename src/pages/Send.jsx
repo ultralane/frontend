@@ -13,6 +13,7 @@ import { db } from "../utils/db";
 import { Note, Field, KeyPair } from "@ultralane/sdk";
 import { useEffect } from "react";
 import { parseUnits } from "ethers";
+import Close from "../components/Icons/Close";
 
 function Send() {
   const [success, setSuccess] = useState(false);
@@ -21,6 +22,7 @@ function Send() {
   const [selectedNetwork, setSelectedNetwork] = useState(""); // Added state for selected network
   const [amount, setAmount] = useState(10); // Initial amount
   const [walletAddress, setWalletAddress] = useState("");
+  const [status, setStatus] = useState("loading");
   useEffect(() => {
     let selectNetwork = async () => {
       let chainId = parseInt(
@@ -86,14 +88,38 @@ function Send() {
     setAmount(e.target.value);
   };
 
+  const closeLoaderModal = () => {
+    setLoading(false);
+    setError(false);
+    setSuccess(false);
+  };
+
   return (
     <PageWrapper>
       <Sidebar />
       <div className='mt-20 flex justify-center'>
         <div className='w-[32%] flex flex-col items-center gap-2'>
-          {loading && <Loading animation={loadingAnimation} status="loading" />}
-          {success && <Loading animation={successAnimation} status="success"/>}
-          {error && <Loading animation={errorAnimation} status="error"/>}
+          {loading && (
+            <Loading
+              animation={loadingAnimation}
+              status={status}
+              closeLoaderModal={closeLoaderModal}
+            />
+          )}
+          {success && (
+            <Loading
+              animation={successAnimation}
+              status={status}
+              closeLoaderModal={closeLoaderModal}
+            />
+          )}
+          {error && (
+            <Loading
+              animation={errorAnimation}
+              status={status}
+              closeLoaderModal={closeLoaderModal}
+            />
+          )}
           {!error && !success && !loading && (
             <>
               <div className='card-gradient pt-10 pb-4 rounded-2xl w-[100%]'>
