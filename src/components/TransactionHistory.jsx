@@ -1,21 +1,31 @@
 import Ellipse1 from "./Icons/Ellipse1";
 import Ellipse2 from "./Icons/Ellipse2";
 
+function parseHex(hex) {
+  return hex.slice(0, 6) + "..." + hex.slice(-4);
+}
+
 function TransactionHistory({ heading, body }) {
   return (
     <div className='rounded-xl border border-white relative border-opacity-25'>
-      <span className='absolute top-0 right-0'>
-        <Ellipse2 />
-      </span>
-      <span className='absolute bottom-0 left-0'>
-        <Ellipse1 />
-      </span>
+      {/* if body length is greater than 3 then only show below ellipse */}
+      {body?.length > 3 && (
+        <>
+          <span className='absolute top-0 right-0'>
+            <Ellipse2 />
+          </span>
+          <span className='absolute bottom-0 left-0'>
+            <Ellipse1 />
+          </span>
+        </>
+      )}
+
       <table className='w-full'>
         <thead>
           <tr>
             {heading?.map((e) => (
-              <th key={e} className='px-4 py-3 font-medium text-center'>
-                {e}
+              <th key={e.key} className='px-4 py-3 font-medium text-center'>
+                {e.title}
               </th>
             ))}
           </tr>
@@ -28,12 +38,11 @@ function TransactionHistory({ heading, body }) {
           </tr>
           {body?.map((rowData, index) => (
             <tr key={index}>
-              <td className='px-4 py-6 text-center'>{rowData?.field1}</td>
-              <td className='px-4 py-6 text-center'>{rowData?.field2}</td>
-              <td className='px-4 py-6 text-center'>{rowData?.field3}</td>
-              <td className='px-4 py-6 text-center'>{rowData?.field4}</td>
-              <td className='px-4 py-6 text-center'>{rowData?.field5}</td>
-              <td className='px-4 py-6 text-center'>{rowData?.field6}</td>
+              {Object.values(heading)?.map((e, i) => (
+                <td key={i} className='px-4 py-6 text-center'>
+                  {e.type === "hex" ? parseHex(rowData[e.key]) : rowData[e.key]}
+                </td>
+              ))}
             </tr>
           ))}
         </tbody>
