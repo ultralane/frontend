@@ -4,7 +4,7 @@ window.deleteDB = deleteDB;
 export let db;
 
 export const initDb = async () => {
-  db = await openDB("ultralane", 6, {
+  db = await openDB("ultralane", 7, {
     upgrade(db) {
       if (!db.objectStoreNames.contains("notes")) {
         db.createObjectStore("notes", {
@@ -24,7 +24,7 @@ export const initDb = async () => {
           autoIncrement: true,
         });
       }
-      if(!db.objectStoreNames.contains("recieve")) {
+      if (!db.objectStoreNames.contains("recieve")) {
         db.createObjectStore("receive", {
           keyPath: "id",
           autoIncrement: true,

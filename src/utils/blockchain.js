@@ -28,22 +28,17 @@ export const getTree = async () => {
 export const fetchTransferEvents = async (startBlock, addresses) => {
   // fetch latest block
   const tokenContract = await USDC();
-  startBlock = 5498630;
   let provider = tokenContract.runner.provider;
   let endBlock = await provider.getBlockNumber();
   let events = [];
   console.log("Fetching transfer events");
   for (let address of addresses) {
-    console.log(address, await tokenContract.getAddress());
     const transferEvents = await tokenContract.queryFilter(
       tokenContract.filters.Transfer(null, address), // From this address
       startBlock,
       endBlock
     );
-    console.log("asdf", transferEvents);
-
-    // You can also check transfers to the address by swapping the parameters
-    // tokenContract.filters.Transfer(null, address), // To this address
+    events = events.concat(transferEvents);
   }
   return [endBlock, events];
 };

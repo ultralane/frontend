@@ -8,11 +8,13 @@ export const Networks = {
     name: "Optimism Sepolia",
     rpc_url: `https://opt-sepolia.g.alchemy.com/v2/${process.env.REACT_APP_ALCHEMY_API_KEY}`,
     startBlock: 9409719,
+    explorer: "https://sepolia-optimism.etherscan.io/",
   },
   421614: {
     name: "Arbitrum Sepolia",
     rpc_url: `https://arb-sepolia.g.alchemy.com/v2/${process.env.REACT_APP_ALCHEMY_API_KEY}`,
     startBlock: 23801231,
+    explorer: "https://sepolia.arbiscan.io/",
   },
 };
 
@@ -26,7 +28,8 @@ export const heading1 = [
 ];
 
 export const heading2 = [
-  { title: "Address", key: "address" },
-  { title: "Created", key: "created" },
+  { title: "From", key: "from", type: "hex" },
+  { title: "To", key: "to", type: "hex" },
   { title: "Amount", key: "amount" },
+  { title: "Tx Hash", key: "txHash", type: "txHash" },
 ];

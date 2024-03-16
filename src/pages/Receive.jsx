@@ -7,7 +7,7 @@ import Modal from "../components/ui/modal";
 import Sidebar from "../components/Sidebar";
 import { KeyPair, Field } from "@ultralane/sdk";
 import { Pool, getNetwork, fetchTransferEvents } from "../utils/blockchain";
-import { ZeroHash } from "ethers";
+import { ZeroHash, formatUnits } from "ethers";
 import QRCode from "react-qr-code";
 import { db } from "../utils/db";
 
@@ -18,6 +18,58 @@ function Receive() {
   const [body, setBody] = useState([]);
   const [newAddress, setNewAddress] = useState("");
   let keyPair;
+
+  const fetchEvents = async () => {
+    let storage = localStorage.getItem("keyPair");
+    if (!storage) {
+      keyPair = await KeyPair.random();
+      localStorage.setItem("keyPair", await keyPair.privateKey.hex());
+    } else {
+      keyPair = await KeyPair.newAsync(Field.from(storage));
+    }
+    let totalNubmerOfAddresses = localStorage.getItem("totalNubmerOfAddresses");
+    if (!totalNubmerOfAddresses) {
+      totalNubmerOfAddresses = 0;
+    }
+    let addresses = [];
+    let pool = await Pool();
+    let poolAddress = await pool.getAddress();
+    for (let i = 0; i < totalNubmerOfAddresses; i++) {
+      let addr = (
+        await keyPair.deriveStealthAddress(i, poolAddress, INIT_CODE_HASH)
+      ).address;
+      addresses.push(addr);
+    }
+    console.log("Fetching transfer events");
+    const netowrk = await getNetwork();
+    let network_cached = await db.get("network", netowrk.chainId);
+    if (!network_cached) {
+      await db.add("network", netowrk);
+    }
+    let [lastBlock, events] = await fetchTransferEvents(
+      network_cached?.startBlock,
+      addresses
+    );
+    network_cached.startBlock = lastBlock;
+    await db.put("network", network_cached);
+    for (let i = 0; i < events.length; i++) {
+      await db.add("receive", {
+        from: events[i].args[0],
+        to: events[i].args[1],
+        amount: events[i].args[2],
+        txHash: `${netowrk.explorer}/tx/${events[i].transactionHash}`,
+      });
+    }
+    let data = await db.getAll("receive");
+    let formattedData = data.map((item) => {
+      return {
+        ...item,
+        amount: formatUnits(item.amount, 6),
+      };
+    });
+    setBody(formattedData);
+  };
+
   useEffect(() => {
     const setKeyPair = async () => {
       let storage = localStorage.getItem("keyPair");
@@ -27,37 +79,10 @@ function Receive() {
       } else {
         keyPair = await KeyPair.newAsync(Field.from(storage));
       }
-
-      let totalNubmerOfAddresses = localStorage.getItem(
-        "totalNubmerOfAddresses"
-      );
-      if (!totalNubmerOfAddresses) {
-        totalNubmerOfAddresses = 0;
-      }
-      let addresses = [];
-      let pool = await Pool();
-      let poolAddress = await pool.getAddress();
-      for (let i = 0; i < totalNubmerOfAddresses; i++) {
-        let addr = (
-          await keyPair.deriveStealthAddress(i, poolAddress, INIT_CODE_HASH)
-        ).address;
-        addresses.push(addr);
-      }
-      const netowrk = await getNetwork();
-      let network_cached = await db.get("network", netowrk.chainId);
-      if (!network_cached) {
-        await db.add("network", netowrk);
-      }
-      let [lastBlock, events] = await fetchTransferEvents(
-        network_cached?.startBlock,
-        addresses
-      );
-      // network_cached.startBlock = lastBlock;
-      // await db.put("network", network_cached);
-      console.log(addresses,events);
+      await fetchEvents();
     };
     setKeyPair();
-  });
+  }, []);
 
   const generateAddress = async () => {
     let pool = await Pool();

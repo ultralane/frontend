@@ -1,8 +1,15 @@
 import Ellipse1 from "./Icons/Ellipse1";
 import Ellipse2 from "./Icons/Ellipse2";
+import { getNetwork } from "../utils/blockchain";
+import { useEffect } from "react";
 
 function parseHex(hex) {
   return hex.slice(0, 6) + "..." + hex.slice(-4);
+}
+
+function getHash(link) {
+  let hash = link.split("/").pop();
+  return parseHex(hash);
 }
 
 function TransactionHistory({ heading, body }) {
@@ -40,7 +47,15 @@ function TransactionHistory({ heading, body }) {
             <tr key={index}>
               {Object.values(heading)?.map((e, i) => (
                 <td key={i} className='px-4 py-6 text-center'>
-                  {e.type === "hex" ? parseHex(rowData[e.key]) : rowData[e.key]}
+                  {e.type === "hex" ? (
+                    parseHex(rowData[e.key])
+                  ) : e.type === "txHash" ? (
+                    <a href={rowData[e.key]} target='_blank' rel='noreferrer'>
+                      {getHash(rowData[e.key])}
+                    </a>
+                  ) : (
+                    rowData[e.key]
+                  )}
                 </td>
               ))}
             </tr>
