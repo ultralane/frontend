@@ -1,13 +1,57 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.card-gradient {
+  /* fallback for old browsers */
+  background-color: #30105c;
+  /* modern browsers */
+  background: linear-gradient(to top right, #30105c, #150b33);
+  /* for webkit browsers */
+  background: -webkit-linear-gradient(to top right, #30105c, #150b33);
+  /* for mozilla browsers */
+  background: -moz-linear-gradient(to top right, #30105c, #150b33);
+  /* for old webkit browsers */
+  background: -o-linear-gradient(to top right, #30105c, #150b33);
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+.heading-1 {
+  @apply text-[40px] text-center font-medium;
+}
+
+.gradient-text {
+  background: linear-gradient(to right, #6d13ff, #01f0ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.card-gradient-2 {
+  background: linear-gradient(45deg, #220846 0%, #0f051d 91%);
+  /* For webkit (Safari, Chrome) */
+  background: -webkit-linear-gradient(45deg, #220846 0%, #0f051d 91%);
+  /* For Firefox */
+  background: -moz-linear-gradient(45deg, #220846 0%, #0f051d 91%);
+  /* For Opera */
+  background: -o-linear-gradient(45deg, #220846 0%, #0f051d 91%);
+  /* For Internet Explorer */
+  background: -ms-linear-gradient(45deg, #220846 0%, #0f051d 91%);
+}
+
+body {
+  @apply bg-[#0F051D] m-0 p-0 text-white h-screen;
+}
+
+.card {
+  @apply card-gradient rounded-2xl;
+}
+
+.sidebar-btn {
+  @apply flex items-center justify-center w-full gap-4 p-4 text-[.9rem] font-medium;
+}
+
+.active {
+  @apply bg-opacity-60 text-[#0EDBD8];
+  background-color: rgba(217, 217, 217, 0.1);
+  border-radius: 0 1rem 1rem 0;
 }
