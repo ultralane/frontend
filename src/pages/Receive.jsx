@@ -3,15 +3,34 @@ import dummyQr from "../assets/qrcode.png";
 import Copy from "../components/Icons/Copy";
 import TransactionHistory from "../components/TransactionHistory";
 import { heading2 } from "../utils/constants";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "../components/ui/modal";
 import Sidebar from "../components/Sidebar";
+import { KeyPair, Field } from "@ultralane/sdk";
+import { Pool } from "../utils/blockchain";
 
 function Receive() {
   const [modalOpen, setModalOpen] = useState(false);
   const [body, setBody] = useState([]);
+  let keyPair;
+  useEffect(() => {
+    const setKeyPair = async () => {
+      let storage = localStorage.getItem("keyPair");
+      if (!storage) {
+        keyPair = await KeyPair.random();
+        localStorage.setItem("keyPair", await keyPair.privateKey.hex());
+      } else {
+        keyPair = await KeyPair.new(Field.from(storage));
+      }
+    };
+    setKeyPair();
+  });
 
-  const openModal = () => {
+  const generateAddress = async () => {
+    let pool = Pool();
+    // const initCodeHash = await pool.INIT_CODE_HASH();
+    // let addr = keyPair.deriveStealthAddress(0, pool, initCodeHash);
+    // window.addr = addr;
     setModalOpen(true);
   };
 
@@ -26,7 +45,7 @@ function Receive() {
           <button
             style={{ backgroundColor: "rgba(14, 219, 216, 0.73)" }}
             className='opacity-90 rounded-xl px-4 py-2 text-[20px]'
-            onClick={openModal}
+            onClick={generateAddress}
           >
             Create New
           </button>
