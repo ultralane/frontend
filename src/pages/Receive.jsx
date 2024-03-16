@@ -1,5 +1,4 @@
 import PageWrapper from "../components/PageWrapper";
-import dummyQr from "../assets/qrcode.png";
 import Copy from "../components/Icons/Copy";
 import TransactionHistory from "../components/TransactionHistory";
 import { heading2 } from "../utils/constants";
@@ -10,6 +9,8 @@ import { KeyPair, Field } from "@ultralane/sdk";
 import { Pool } from "../utils/blockchain";
 import { ZeroHash } from "ethers";
 import QRCode from "react-qr-code";
+
+const INIT_CODE_HASH = ZeroHash;
 
 function Receive() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -25,6 +26,23 @@ function Receive() {
       } else {
         keyPair = await KeyPair.newAsync(Field.from(storage));
       }
+
+      let totalNubmerOfAddresses = localStorage.getItem(
+        "totalNubmerOfAddresses"
+      );
+      if (!totalNubmerOfAddresses) {
+        totalNubmerOfAddresses = 0;
+      }
+      let addresses = [];
+      let pool = await Pool();
+      let poolAddress = await pool.getAddress();
+      for (let i = 0; i < totalNubmerOfAddresses; i++) {
+        let addr = (
+          await keyPair.deriveStealthAddress(i, poolAddress, INIT_CODE_HASH)
+        ).address;
+        addresses.push(addr);
+      }
+      console.log(addresses);
     };
     setKeyPair();
   });
@@ -40,7 +58,7 @@ function Receive() {
       await keyPair.deriveStealthAddress(
         totalNubmerOfAddresses,
         poolAddress,
-        ZeroHash
+        INIT_CODE_HASH
       )
     ).address;
     setNewAddress(addr);

@@ -350,18 +350,21 @@ export const Networks = {
     usdc_address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
     pool_address: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
     rpc_url: "http://localhost:8545",
+    startBlock: 5,
   },
   11155111: {
     name: "Sepolia",
     usdc_address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
     pool_address: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
     rpc_url: "https://1rpc.io/sepolia	",
+    startBlock: 5498346,
   },
-  5: {
-    name: "Goerli",
+  421614: {
+    name: "Arbitrum Sepolia",
     usdc_address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
     pool_address: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
-    rpc_url: "https://eth-goerli.public.blastapi.io	",
+    rpc_url: "https://arbitrum-sepolia.blockpi.network/v1/rpc/public",
+    startBlock: 23801231,
   },
 };
 

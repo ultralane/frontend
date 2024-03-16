@@ -32,3 +32,20 @@ export const getTree = async () => {
     depth: Depth,
   });
 };
+
+// Function to fetch transfer events
+export const fetchTransferEvents = async (startBlock, endBlock, addresses) => {
+  const tokenContract = await USDC();
+  for (let address of addresses) {
+    const transferEvents = await tokenContract.queryFilter(
+      tokenContract.filters.Transfer(address, null), // From this address
+      startBlock,
+      endBlock
+    );
+
+    // You can also check transfers to the address by swapping the parameters
+    // tokenContract.filters.Transfer(null, address), // To this address
+
+    console.log(`Transfer events for ${address}: `, transferEvents);
+  }
+};
