@@ -27,12 +27,6 @@ function Profile() {
           <h3 className='font-medium mb-4 text-[#0EDBD8]'>Ultralane Balance</h3>
           <BalanceCard updateBody={updateBody} />
         </div>
-        {/* <div>
-          <h3 className='font-medium mb-4 text-[#0EDBD8]'>
-            Wallet balance across different chain
-          </h3>
-          <BalanceCard />
-        </div> */}
       </div>
       <div className='mt-12'>
         <h2 className='font-medium text-[1.7rem]'>HISTORY</h2>

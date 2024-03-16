@@ -10,6 +10,7 @@ import { parseUnits } from "ethers";
 import { db } from "../utils/db";
 import { useEffect } from "react";
 import { Networks } from "../utils/constants";
+import { getNetwork } from "../utils/blockchain";
 
 function BalanceCard({ updateBody }) {
   const [modalOpen, setModalOpen] = useState(false);
@@ -110,10 +111,11 @@ function BalanceCard({ updateBody }) {
     // store the new commitment in the local db
     db.add("elements", { value: (await tx.outputs[0].commitment()).hex() });
     db.add("notes", tx.outputs[0].raw());
+    const network = await getNetwork();
 
     let txStore = {
       txHash: deposit_tx.hash,
-      chain: "Ethereum",
+      chain: network.name,
       source: "Deposit",
       status: "Success",
       time: new Date().toLocaleString(),
