@@ -124,8 +124,9 @@ function BalanceCard({ updateBody }) {
       db.add("notes", tx.outputs[0].raw());
       console.log("note added to db", await tx.outputs[0].commitmentHex());
       let network = await getNetwork();
+      let link = `${network.explorer}/tx/${deposit_tx.hash}`;
       let txStore = {
-        txHash: deposit_tx.hash,
+        txHash: link,
         chain: network.name,
         source: "Deposit",
         status: "Success",
