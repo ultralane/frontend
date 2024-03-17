@@ -5,8 +5,14 @@ import { heading2 } from "../utils/constants";
 import { useEffect, useState } from "react";
 import Modal from "../components/ui/modal";
 import Sidebar from "../components/Sidebar";
-import { KeyPair, Field } from "@ultralane/sdk";
-import { Pool, getNetwork, fetchTransferEvents } from "../utils/blockchain";
+import { KeyPair, Field, Note } from "@ultralane/sdk";
+import {
+  Pool,
+  getNetwork,
+  fetchTransferEvents,
+  getTree,
+  USDC,
+} from "../utils/blockchain";
 import { ZeroHash, formatUnits } from "ethers";
 import QRCode from "react-qr-code";
 import { db } from "../utils/db";
@@ -65,6 +71,29 @@ function Receive() {
           amount: events[i].args[2],
           txHash: `${netowrk.explorer}/tx/${events[i].transactionHash}`,
         });
+        let index = addresses.indexOf(events[i].args[1]);
+        if (index == -1) {
+          throw new Error("Address not found");
+        }
+        let { address, salt } = await kp.deriveStealthAddress(
+          index,
+          poolAddress,
+          INIT_CODE_HASH
+        );
+        let stealthProof = await kp.proveStealthAddressOwnership(index);
+        // let tree = await getTree();
+        let note = new Note(events[i].args[2], kp, Field.random());
+        let note_proof = await note.prove();
+        let usdc = await USDC();
+        let data = await pool.collect.populateTransaction(
+          usdc,
+          events[i].args[2],
+          salt.hex(),
+          stealthProof.proof,
+          await note.commitmentHex(),
+          note_proof.proof
+        );
+        console.log(data);
       }
       let data = await db.getAll("receive");
       let formattedData = data.map((item) => {
