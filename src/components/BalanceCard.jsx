@@ -176,20 +176,19 @@ function BalanceCard({ updateBody }) {
       let userAddress = await window.ethereum.request({
         method: "eth_requestAccounts",
       });
-      console.log("user address", userAddress);
 
       const input = await tree.createInput(note);
       const inputProof = await input.prove(userAddress);
       const pool = await Pool();
       console.log("input proof", inputProof);
       console.log(note);
-      // await pool.trustlessWithdrawInit(
-      //   inputProof.proof,
-      //   inputProof.publicInputs,
-      //   {
-      //     value: parseUnits("0.1", 18),
-      //   }
-      // );
+      await pool.trustlessWithdrawInit(
+        inputProof.proof,
+        inputProof.publicInputs,
+        {
+          value: parseUnits("0.1", 18),
+        }
+      );
     }
   };
 
