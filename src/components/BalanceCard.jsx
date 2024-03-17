@@ -168,15 +168,18 @@ function BalanceCard({ updateBody }) {
   const withdraw = async () => {
     let tree = await getTree();
     let notes = await db.getAll("notes");
+    console.log(notes);
     if (notes.length == 0) {
       alert("No notes to withdraw");
       return;
     } else {
       let note = await Note.from(notes[0]);
-      let userAddress = await window.ethereum.request({
-        method: "eth_requestAccounts",
-      });
-
+      let userAddress = (
+        await window.ethereum.request({
+          method: "eth_requestAccounts",
+        })
+      )[0];
+      console.log("user address", userAddress);
       const input = await tree.createInput(note);
       const inputProof = await input.prove(userAddress);
       const pool = await Pool();
