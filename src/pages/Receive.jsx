@@ -10,14 +10,15 @@ import {
   Pool,
   getNetwork,
   fetchTransferEvents,
-  getTree,
   USDC,
 } from "../utils/blockchain";
 import { ZeroHash, formatUnits } from "ethers";
 import QRCode from "react-qr-code";
 import { db } from "../utils/db";
+import { api } from "../utils/api";
 
-const INIT_CODE_HASH = ZeroHash;
+const INIT_CODE_HASH =
+  "0x8ef41c02d84907eba00830bf248d119ab5a737b8977d1f8a7268194e19b7b627";
 
 function Receive() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -31,7 +32,7 @@ function Receive() {
       let kp;
       if (!storage) {
         kp = await KeyPair.random();
-        localStorage.setItem("keyPair", await keyPair.privateKey.hex());
+        localStorage.setItem("keyPair", await kp.privateKey.hex());
       } else {
         kp = await KeyPair.newAsync(Field.from(storage));
       }
@@ -75,7 +76,7 @@ function Receive() {
         if (index == -1) {
           throw new Error("Address not found");
         }
-        let { address, salt } = await kp.deriveStealthAddress(
+        let { salt } = await kp.deriveStealthAddress(
           index,
           poolAddress,
           INIT_CODE_HASH
@@ -93,7 +94,14 @@ function Receive() {
           await note.commitmentHex(),
           note_proof.proof
         );
-        console.log(data);
+        data = {
+          ...data,
+          chainId: netowrk.chainId,
+        };
+        // console.log(events[i].args[1]);
+        // console.log("hash", await pool.INIT_CODE_HASH());
+        let res = await api.post("/collect", data);
+        console.log(res.data);
       }
       let data = await db.getAll("receive");
       let formattedData = data.map((item) => {
