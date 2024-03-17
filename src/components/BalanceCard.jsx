@@ -16,6 +16,7 @@ import successAnimation from "../assets/success.json";
 import errorAnimation from "../assets/error.json";
 import { getNetwork } from "../utils/blockchain";
 import { Note } from "@ultralane/sdk";
+import { formatUnits } from "ethers";
 
 function BalanceCard({ updateBody }) {
   const [modalOpen, setModalOpen] = useState(false);
@@ -194,6 +195,13 @@ function BalanceCard({ updateBody }) {
           value: parseUnits("0.1", 18),
         }
       );
+      await db.delete("notes", notes[0].id);
+      let balance = localStorage.getItem("balance");
+      let balance_int = parseInt(balance);
+      let amount_int = parseInt(formatUnits(notes[0].amount, 6));
+      localStorage.setItem("balance", balance_int - amount_int);
+      setBalance(balance_int - amount_int);
+      console.log("note deleted");
       setStatus("Success");
       setLoading(false);
       setSuccess(true);
