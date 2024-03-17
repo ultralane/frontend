@@ -122,6 +122,7 @@ function BalanceCard({ updateBody }) {
 
       // store the new commitment in the local db
       db.add("notes", tx.outputs[0].raw());
+      console.log("note added to db", await tx.outputs[0].commitmentHex());
       let network = await getNetwork();
       let txStore = {
         txHash: deposit_tx.hash,

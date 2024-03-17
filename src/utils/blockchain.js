@@ -13,9 +13,8 @@ export const USDC = async () => {
 export const Pool = async () => {
   let provider = new BrowserProvider(window.ethereum);
   let signer = await provider.getSigner();
-  let { pool } = await getContracts(signer);
-  pool = await pool.attach("0x4173058ff62d69814c83ca154294BbD7c9B8A87B");
-  return pool;
+  let { ultralane } = await getContracts(signer);
+  return ultralane;
 };
 
 export const getTree = async () => {

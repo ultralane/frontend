@@ -14,6 +14,7 @@ import { Note, Field, KeyPair } from "@ultralane/sdk";
 import { useEffect } from "react";
 import { parseUnits } from "ethers";
 import Close from "../components/Icons/Close";
+import { api } from "../utils/api";
 
 function Send() {
   const [success, setSuccess] = useState(false);
@@ -36,8 +37,7 @@ function Send() {
   const sendHandler = async () => {
     setLoading(true);
     try {
-      console.log("Sending", amount, "USDC to", walletAddress);
-
+      setStatus("loading");
       const tree = await getTree();
 
       // Get the notes with highest value
@@ -55,6 +55,7 @@ function Send() {
       const withdrawAddress = await Field.from(walletAddress);
       const keypair = await KeyPair.random();
       window.depositNotes = depositNotes;
+      setStatus("Creating transaction");
       const tx = await tree.createTransaction({
         inputNotes: depositNotes,
         keypair,
@@ -62,12 +63,40 @@ function Send() {
         depositAmount: withdrawAmount * -1n,
         withdrawAddress,
       });
+      let index = await tree.findNoteIndex(depositNotes[0]);
+      let nullifiers = [];
+      console.log(depositNotes);
+      for (let i = 0; i < depositNotes.length; i++) {
+        let index = await tree.findNoteIndex(depositNotes[i]);
+        let nullifier = await depositNotes[i].nullifier(Field.from(index));
+        nullifiers.push(nullifier.hex());
+      }
+
+      setStatus("Generating proof");
       const { proof, publicInputs } = await tx.prove();
-      console.log("Proof and public inputs generated");
+      setStatus("Submitting transaction to relayer");
+      let data = {
+        proof: JSON.stringify(Array.from(proof)),
+        publicInputs: publicInputs,
+        chainId:
+          typeof selectedNetwork === "string"
+            ? selectedNetwork
+            : String(selectedNetwork),
+        nullifiers: nullifiers,
+        withdrawAddress: walletAddress,
+      };
+      console.log({ proof, publicInputs });
+      let res = await api.post("/send", data);
+      console.log(res.data);
       setLoading(false);
       setSuccess(true);
     } catch (error) {
-      console.error(error);
+      let e = "error";
+      if (error.message.includes(":")) {
+        e = error.message.split(":")[0];
+      }
+      console.log(error);
+      setStatus(e);
       setLoading(false);
       setError(true);
     }
