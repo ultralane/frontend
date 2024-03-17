@@ -52,6 +52,7 @@ function TransactionHistory({ heading, body }) {
                   ) : (
                     rowData[e.key]
                   )}
+                  {e.key === "amount" && <>{" " + "USDC"}</>}
                 </td>
               ))}
             </tr>
