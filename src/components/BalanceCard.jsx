@@ -164,6 +164,19 @@ function BalanceCard({ updateBody }) {
     setSuccess(false);
   };
 
+  const withdraw = async () => {
+    const input = await tree.createInput(note);
+    const inputProof = await input.prove(userAddress);
+
+    await ultralane.trustlessWithdrawInit(
+      inputProof.proof,
+      inputProof.publicInputs,
+      {
+        value: parseUnits("0.1", 18),
+      }
+    );
+  };
+
   return (
     <>
       <div className='bg-[#121024] flex w-[270px] gap-8 rounded-md px-5 py-7 justify-between'>
@@ -177,7 +190,10 @@ function BalanceCard({ updateBody }) {
           >
             DEPOSIT
           </button>
-          <button className='p-1 text-[.8rem] bg-none border-2 rounded-md'>
+          <button
+            className='p-1 text-[.8rem] bg-none border-2 rounded-md'
+            onClick={withdraw}
+          >
             WITHDRAW
           </button>
         </div>
