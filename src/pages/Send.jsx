@@ -91,7 +91,7 @@ function Send() {
         setStatus("Transaction submitted");
         await db.add("transactions", {
           txHash: link,
-          amount: withdrawAmount.toString(),
+          amount: amount.toString(),
           chain: Networks[selectedNetwork].name,
           source: "Send",
           status: "Success",
@@ -101,12 +101,13 @@ function Send() {
         notes.slice(0, 2).forEach(async (note) => {
           await db.delete("notes", note.id);
         });
+        await db.add("notes", tx.outputs[0].raw());
         let balance = localStorage.getItem("balance");
         if (!balance) {
           balance = "0";
         }
         let balance_int = parseInt(balance);
-        let amount_int = parseInt(withdrawAmount.toString());
+        let amount_int = parseInt(amount.toString());
         localStorage.setItem("balance", balance_int - amount_int);
       } else {
         await db.add("transactions", {
@@ -114,6 +115,7 @@ function Send() {
           chain: Networks[selectedNetwork].name,
           source: "Send",
           status: "Failed",
+          amount: amount.toString(),
           time: new Date().toLocaleString(),
           to: walletAddress,
         });
@@ -126,6 +128,16 @@ function Send() {
       if (error.message.includes(":")) {
         e = error.message.split(":")[0];
       }
+      await db.add("transactions", {
+        txHash: "",
+        chain: Networks[selectedNetwork].name,
+        source: "Send",
+        status: "Failed",
+        amount: amount.toString(),
+        time: new Date().toLocaleString(),
+        to: walletAddress,
+      });
+
       console.log(error);
       setStatus(e);
       setLoading(false);

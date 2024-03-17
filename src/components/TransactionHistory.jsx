@@ -18,12 +18,8 @@ function TransactionHistory({ heading, body }) {
       {/* if body length is greater than 3 then only show below ellipse */}
       {body?.length > 3 && (
         <>
-          <span className='absolute top-0 right-0'>
-            <Ellipse2 />
-          </span>
-          <span className='absolute bottom-0 left-0'>
-            <Ellipse1 />
-          </span>
+          <span className='absolute top-0 right-0'>{/* <Ellipse2 /> */}</span>
+          <span className='absolute bottom-0 left-0'>{/* <Ellipse1 /> */}</span>
         </>
       )}
 

@@ -7,14 +7,26 @@ export const Networks = {
   11155420: {
     name: "Optimism Sepolia",
     rpc_url: `https://opt-sepolia.g.alchemy.com/v2/${process.env.REACT_APP_ALCHEMY_API_KEY}`,
-    startBlock: 9409719,
+    startBlock: 9426671,
     explorer: "https://sepolia-optimism.etherscan.io/",
   },
   421614: {
     name: "Arbitrum Sepolia",
     rpc_url: `https://arb-sepolia.g.alchemy.com/v2/${process.env.REACT_APP_ALCHEMY_API_KEY}`,
-    startBlock: 23801231,
+    startBlock: 24012571,
     explorer: "https://sepolia.arbiscan.io/",
+  },
+  80001: {
+    name: "Mumbai",
+    rpc_url: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.REACT_APP_ALCHEMY_API_KEY}`,
+    startBlock: 47145063,
+    explorer: "https://mumbai.polygonscan.com/",
+  },
+  11155111: {
+    name: "Sepolia",
+    rpc_url: `https://eth-sepolia.g.alchemy.com/v2/${process.env.REACT_APP_ALCHEMY_API_KEY}`,
+    startBlock: 5502734,
+    explorer: "https://sepolia.etherscan.io/",
   },
 };
 

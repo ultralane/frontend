@@ -84,6 +84,8 @@ function Receive() {
         let stealthProof = await kp.proveStealthAddressOwnership(index);
         // let tree = await getTree();
         let note = new Note(events[i].args[2], kp, Field.random());
+        window.note = note;
+        console.log("note", note.commitmentHex());
         let note_proof = await note.prove();
         let usdc = await USDC();
         let data = await pool.collect.populateTransaction(
