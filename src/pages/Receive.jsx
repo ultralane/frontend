@@ -98,10 +98,18 @@ function Receive() {
           ...data,
           chainId: netowrk.chainId,
         };
-        // console.log(events[i].args[1]);
-        // console.log("hash", await pool.INIT_CODE_HASH());
         let res = await api.post("/collect", data);
-        console.log(res.data);
+        if (res.status == 200) {
+          await db.add("notes", note.raw());
+          let balance = localStorage.getItem("balance");
+          if (!balance) {
+            balance = "0";
+          }
+          let balance_int = parseInt(balance);
+          let amount_int = parseInt(formatUnits(events[i].args[2], 6));
+          console.log("balance", balance_int, amount_int);
+          localStorage.setItem("balance", balance_int + amount_int);
+        }
       }
       let data = await db.getAll("receive");
       let formattedData = data.map((item) => {

@@ -30,7 +30,7 @@ export const fetchTransferEvents = async (startBlock, addresses) => {
   // fetch latest block
   const tokenContract = await USDC();
   let provider = tokenContract.runner.provider;
-  startBlock = 23941031; // TODO: remove this line
+  // startBlock = 23941031; // TODO: remove this line
   let endBlock = await provider.getBlockNumber();
   let events = [];
   console.log("Fetching transfer events");

@@ -144,8 +144,12 @@ function BalanceCard({ updateBody }) {
       setLoading(false);
       setSuccess(true);
     } catch (error) {
-      console.error(error.message);
-      setStatus(error);
+      let e = "Error";
+      if (error.message.includes("429")) {
+        e = "Too many requests";
+      }
+      console.log(error.message);
+      setStatus(e);
       console.error(error);
       setLoading(false);
       setError(true);
