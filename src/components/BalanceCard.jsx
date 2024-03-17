@@ -168,9 +168,10 @@ function BalanceCard({ updateBody }) {
   const withdraw = async () => {
     let tree = await getTree();
     let notes = await db.getAll("notes");
-    console.log(notes);
+    setLoading(true);
     if (notes.length == 0) {
       alert("No notes to withdraw");
+      setLoading(false);
       return;
     } else {
       let note = await Note.from(notes[0]);
@@ -180,11 +181,12 @@ function BalanceCard({ updateBody }) {
         })
       )[0];
       console.log("user address", userAddress);
+
       const input = await tree.createInput(note);
       const inputProof = await input.prove(userAddress);
       const pool = await Pool();
       console.log("input proof", inputProof);
-      console.log(note);
+      setStatus("Withdrawing...");
       await pool.trustlessWithdrawInit(
         inputProof.proof,
         inputProof.publicInputs,
@@ -192,7 +194,11 @@ function BalanceCard({ updateBody }) {
           value: parseUnits("0.1", 18),
         }
       );
+      setStatus("Success");
+      setLoading(false);
+      setSuccess(true);
     }
+    setLoading(false);
   };
 
   return (
