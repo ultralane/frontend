@@ -63,7 +63,6 @@ function Send() {
         depositAmount: withdrawAmount * -1n,
         withdrawAddress,
       });
-      let index = await tree.findNoteIndex(depositNotes[0]);
       let nullifiers = [];
       console.log(depositNotes);
       for (let i = 0; i < depositNotes.length; i++) {
@@ -87,7 +86,39 @@ function Send() {
       };
       console.log({ proof, publicInputs });
       let res = await api.post("/send", data);
-      console.log(res.data);
+      if (res.data.txHash != "0x") {
+        let link = `${Networks[selectedNetwork].explorer}/tx/${res.data.txHash}`;
+        setStatus("Transaction submitted");
+        await db.add("transactions", {
+          txHash: link,
+          amount: withdrawAmount.toString(),
+          chain: Networks[selectedNetwork].name,
+          source: "Send",
+          status: "Success",
+          time: new Date().toLocaleString(),
+          to: walletAddress,
+        });
+        notes.slice(0, 2).forEach(async (note) => {
+          await db.delete("notes", note.id);
+        });
+        let balance = localStorage.getItem("balance");
+        if (!balance) {
+          balance = "0";
+        }
+        let balance_int = parseInt(balance);
+        let amount_int = parseInt(withdrawAmount.toString());
+        localStorage.setItem("balance", balance_int - amount_int);
+      } else {
+        await db.add("transactions", {
+          txHash: "",
+          chain: Networks[selectedNetwork].name,
+          source: "Send",
+          status: "Failed",
+          time: new Date().toLocaleString(),
+          to: walletAddress,
+        });
+        throw new Error("Transaction failed");
+      }
       setLoading(false);
       setSuccess(true);
     } catch (error) {

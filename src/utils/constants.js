@@ -19,7 +19,7 @@ export const Networks = {
 };
 
 export const heading1 = [
-  { title: "Tx Hash", key: "txHash", type: "hex" },
+  { title: "Tx Hash", key: "txHash", type: "txHash" },
   { title: "Chain", key: "chain" },
   { title: "Source", key: "source" },
   { title: "Status", key: "status" },
