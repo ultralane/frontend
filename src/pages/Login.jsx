@@ -17,20 +17,9 @@ function Login() {
       alert("No address found");
       return;
     }
-    const address = window.ethereum.selectedAddress;
-    const nonce_res = await api.get(`/auth/nonce/${address}`);
-    const nonce = nonce_res.data.nonce;
-
     const provider = new BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
-    const signature = await signer.signMessage(`${nonce}`);
-
-    const login_res = await api.post(`/auth/login`, {
-      address,
-      signature,
-    });
-    const token = login_res.data.token;
-    localStorage.setItem("token", token); // TODO: use secure storage
+    await signer.getAddress();
     navigate("/profile");
   };
 
