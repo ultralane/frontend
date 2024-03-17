@@ -15,6 +15,7 @@ import loadingAnimation from "../assets/loading.json";
 import successAnimation from "../assets/success.json";
 import errorAnimation from "../assets/error.json";
 import { getNetwork } from "../utils/blockchain";
+import { Note } from "@ultralane/sdk";
 
 function BalanceCard({ updateBody }) {
   const [modalOpen, setModalOpen] = useState(false);
@@ -165,16 +166,31 @@ function BalanceCard({ updateBody }) {
   };
 
   const withdraw = async () => {
-    const input = await tree.createInput(note);
-    const inputProof = await input.prove(userAddress);
+    let tree = await getTree();
+    let notes = await db.getAll("notes");
+    if (notes.length == 0) {
+      alert("No notes to withdraw");
+      return;
+    } else {
+      let note = await Note.from(notes[0]);
+      let userAddress = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      console.log("user address", userAddress);
 
-    await ultralane.trustlessWithdrawInit(
-      inputProof.proof,
-      inputProof.publicInputs,
-      {
-        value: parseUnits("0.1", 18),
-      }
-    );
+      const input = await tree.createInput(note);
+      const inputProof = await input.prove(userAddress);
+      const pool = await Pool();
+      console.log("input proof", inputProof);
+      console.log(note);
+      // await pool.trustlessWithdrawInit(
+      //   inputProof.proof,
+      //   inputProof.publicInputs,
+      //   {
+      //     value: parseUnits("0.1", 18),
+      //   }
+      // );
+    }
   };
 
   return (
